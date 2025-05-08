@@ -4,13 +4,62 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Pixel art game</title>
+    <style>
+      body {
+        text-align: center;
+        padding: 0;
+        border: 0;
+        margin: 0;
+        position: relative;
+        overflow: hidden;
+        touch-action: manipulation;
+      }
+      #unity-canvas {
+        width: 960px;
+        height: 600px;
+        background: #231F20;
+      }
+      .controls {
+        position: absolute;
+        top: 0;
+        right: 20px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: flex-end;
+        pointer-events: none;
+      }
+      .button {
+        pointer-events: auto;
+        background-color: #333;
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        opacity: 0.8;
+        margin: 5px 0;
+      }
+      .button:active {
+        background-color: #555;
+      }
+    </style>
   </head>
-  <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-    <canvas id="unity-canvas" width=960 height=600 tabindex="-1" style="width: 960px; height: 600px; background: #231F20"></canvas>
+  <body>
+    <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+    <div class="controls">
+      <button class="button" onmousedown="setInput(0, 1)" onmouseup="setInput(0, 0)" ontouchstart="setInput(0, 1)" ontouchend="setInput(0, 0)">Up</button>
+      <button class="button" onmousedown="setInput(-1, 0)" onmouseup="setInput(0, 0)" ontouchstart="setInput(-1, 0)" ontouchend="setInput(0, 0)">Left</button>
+      <button class="button" onmousedown="setInput(1, 0)" onmouseup="setInput(0, 0)" ontouchstart="setInput(1, 0)" ontouchend="setInput(0, 0)">Right</button>
+      <button class="button" onmousedown="setInput(0, -1)" onmouseup="setInput(0, 0)" ontouchstart="setInput(0, -1)" ontouchend="setInput(0, 0)">Down</button>
+    </div>
     <script src="Build/Build.loader.js"></script>
     <script>
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
+      let unityInstance = null;
+
+      if (/iPhone|iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement('meta');
         meta.name = 'viewport';
         meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
@@ -32,9 +81,15 @@
         companyName: "DefaultCompany",
         productName: "Pixel art game",
         productVersion: "1.0",
-        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+      }).then((instance) => {
+        unityInstance = instance;
       });
+
+      function setInput(x, y) {
+        if (unityInstance) {
+          unityInstance.SendMessage('Player', 'SetInput', JSON.stringify({ x: x, y: y }));
+        }
+      }
     </script>
   </body>
 </html>
