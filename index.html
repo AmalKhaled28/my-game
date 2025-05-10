@@ -7,7 +7,7 @@
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
     <canvas id="unity-canvas" width=960 height=600 tabindex="-1" style="width: 960px; height: 600px; background: #231F20"></canvas>
-    <!-- حقل الإدخال المخفي لفتح الكيبورد مع تحسينات -->
+    <!-- حقل الإدخال المخفي لفتح الكيبورد -->
     <input type="text" id="hiddenInput" style="position:absolute; opacity:0; pointer-events:auto; width:1px; height:1px; left:-100px; top:-100px;" tabindex="-1">
     <script src="Build/Build.loader.js"></script>
     <script>
@@ -33,33 +33,52 @@
         companyName: "DefaultCompany",
         productName: "Pixel art game",
         productVersion: "1.0",
-      });
+      }).then((unityInstance) => {
+        // التأكد من إن unityInstance جاهز قبل استخدامه
+        window.unityInstance = unityInstance;
 
-      // كود JavaScript لإرسال النص من حقل الـ HTML لـ Unity
-      function sendInputToUnity(input) {
-        if (window.unityInstance) {
-          console.log("Sending to Unity: " + input + " | Length: " + input.length); // Log مع طول النص
-          window.unityInstance.SendMessage('Canvas', 'ReceiveInput', input);
-        } else {
-          console.error("Unity instance not found!");
+        // كود JavaScript لإرسال النص من حقل الـ HTML لـ Unity
+        function sendInputToUnity(input) {
+          if (window.unityInstance) {
+            console.log("Sending to Unity: '" + input + "' | Length: " + input.length); // Log للتحقق
+            window.unityInstance.SendMessage('Canvas', 'ReceiveInput', input);
+          } else {
+            console.error("Unity instance not found!");
+          }
         }
-      }
 
-      // إضافة مستمع للـ input مع تحقق من القيمة
-      document.getElementById('hiddenInput').addEventListener('input', function() {
-        var value = this.value.trim(); // إزالة المسافات غير الضرورية
-        if (value.length > 0) {
-          console.log("Input value: " + value + " | Length: " + value.length); // Log للتحقق
-          sendInputToUnity(value);
+        // التأكد من إن الحقل موجود
+        var hiddenInput = document.getElementById('hiddenInput');
+        if (hiddenInput) {
+          hiddenInput.addEventListener('input', function() {
+            var value = this.value.trim(); // إزالة المسافات
+            console.log("Input value: '" + value + "' | Length: " + value.length); // Log للتحقق
+            if (value.length > 0) {
+              sendInputToUnity(value);
+            } else {
+              console.log("Input value is empty or unchanged");
+            }
+          });
+
+          // مستمع إضافي للتأكد من الـ change
+          hiddenInput.addEventListener('change', function() {
+            var value = this.value.trim();
+            console.log("Input changed: '" + value + "' | Length: " + value.length);
+            if (value.length > 0) {
+              sendInputToUnity(value);
+            }
+          });
+
+          // مستمع لفقدان الـ focus
+          hiddenInput.addEventListener('blur', function() {
+            console.log("Input lost focus");
+            this.value = ""; // مسح الحقل عند الخروج
+          });
         } else {
-          console.log("Input value is empty or unchanged");
+          console.error("Hidden input field not found!");
         }
-      });
-
-      // إضافة مستمع لفقدان الـ focus (اختياري لإخفاء الكيبورد)
-      document.getElementById('hiddenInput').addEventListener('blur', function() {
-        console.log("Input lost focus");
-        this.value = ""; // مسح الحقل عند الخروج
+      }).catch((error) => {
+        console.error("Failed to create Unity instance: ", error);
       });
     </script>
   </body>
