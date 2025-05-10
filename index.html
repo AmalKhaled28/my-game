@@ -8,11 +8,10 @@
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
     <canvas id="unity-canvas" width=960 height=600 tabindex="-1" style="width: 960px; height: 600px; background: #231F20"></canvas>
     <!-- حقل الإدخال المخفي لفتح الكيبورد -->
-    <input type="text" id="hiddenInput" style="position:absolute; opacity:0; pointer-events:none;">
+    <input type="text" id="hiddenInput" style="position:absolute; opacity:0; pointer-events:none; width:1px; height:1px;">
     <script src="Build/Build.loader.js"></script>
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
         var meta = document.createElement('meta');
         meta.name = 'viewport';
         meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
@@ -34,19 +33,20 @@
         companyName: "DefaultCompany",
         productName: "Pixel art game",
         productVersion: "1.0",
-        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
       });
 
       // كود JavaScript لإرسال النص من حقل الـ HTML لـ Unity
       function sendInputToUnity(input) {
         if (window.unityInstance) {
+          console.log("Sending to Unity: " + input); // للتحقق
           window.unityInstance.SendMessage('Canvas', 'ReceiveInput', input);
         }
       }
 
       document.getElementById('hiddenInput').addEventListener('input', function() {
-        sendInputToUnity(this.value);
+        var value = this.value;
+        console.log("Input value: " + value); // للتحقق
+        sendInputToUnity(value);
       });
     </script>
   </body>
